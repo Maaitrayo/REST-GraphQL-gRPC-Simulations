@@ -1,9 +1,15 @@
-# User DB SQL Commands
+# User And Order DB SQL Commands
 
-Use these commands to inspect the active SQLite database used by the current app:
+Use these commands to inspect the active SQLite databases used by the current app.
 
 ```powershell
 sqlite3 rest\db\users.db
+```
+
+## Open Order Database
+
+```powershell
+sqlite3 rest\db\orders.db
 ```
 
 ## List Tables
@@ -49,6 +55,44 @@ SELECT COUNT(*) AS total_users
 FROM users;
 ```
 
+## Show Order Table Schema
+
+```sql
+.schema orders
+```
+
+## View All Orders
+
+```sql
+SELECT id, user_id, product_name, quantity, status, created_at
+FROM orders
+ORDER BY id;
+```
+
+## Find Orders For One User
+
+```sql
+SELECT id, user_id, product_name, quantity, status, created_at
+FROM orders
+WHERE user_id = 1
+ORDER BY id;
+```
+
+## Find One Order By ID
+
+```sql
+SELECT id, user_id, product_name, quantity, status, created_at
+FROM orders
+WHERE id = 1;
+```
+
+## Count Orders
+
+```sql
+SELECT COUNT(*) AS total_orders
+FROM orders;
+```
+
 ## Exit SQLite
 
 ```sql
@@ -69,8 +113,15 @@ Create a user with the client:
 python rest/client.py create-user --name Alice --email alice@example.com
 ```
 
-Then inspect the database:
+Create an order:
 
 ```powershell
-sqlite3 rest/users.db
+python rest/order_client.py create-order --user-id 1 --product-name Laptop --quantity 1
+```
+
+Then inspect the databases:
+
+```powershell
+sqlite3 rest\db\users.db
+sqlite3 rest\db\orders.db
 ```
