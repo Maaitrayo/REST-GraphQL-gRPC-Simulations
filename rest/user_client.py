@@ -1,15 +1,15 @@
 """
 Example usage:
 
-python rest/client.py health
-python rest/client.py list-users
-python rest/client.py create-user --name Alice --email alice@example.com
-python rest/client.py get-user 1
+uv run rest/user_client.py health
+uv run rest/user_client.py list-users
+uv run rest/user_client.py create-user --name Alice --email alice@example.com
+uv run rest/user_client.py get-user 1
 
-python rest/client.py update-user 1 --name "Alice Updated"
-python rest/client.py update-user 1 --email "alice.new@example.com"
-python rest/client.py update-user 1 --inactive
-python rest/client.py update-user 1 --name "Alice" --email "alice@example.com" --active
+uv run rest/user_client.py update-user 1 --name "Alice Updated"
+uv run rest/user_client.py update-user 1 --email "alice.new@example.com"
+uv run rest/user_client.py update-user 1 --inactive
+uv run rest/user_client.py update-user 1 --name "Alice" --email "alice@example.com" --active
 
 """
 
@@ -55,17 +55,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    # health check
     subparsers.add_parser("health")
+    
+    # list all users
     subparsers.add_parser("list-users")
 
+    # get user by id
     get_user = subparsers.add_parser("get-user")
     get_user.add_argument("user_id", type=int)
 
+    # create user
     create_user = subparsers.add_parser("create-user")
     create_user.add_argument("--name", required=True)
     create_user.add_argument("--email", required=True)
     create_user.add_argument("--inactive", action="store_true")
 
+    # update user
     update_user = subparsers.add_parser("update-user")
     update_user.add_argument("user_id", type=int)
     update_user.add_argument("--name")
@@ -73,6 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
     update_user.add_argument("--active", action="store_true")
     update_user.add_argument("--inactive", action="store_true")
 
+    # delete user by id
     delete_user = subparsers.add_parser("delete-user")
     delete_user.add_argument("user_id", type=int)
 
