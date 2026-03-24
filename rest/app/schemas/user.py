@@ -1,17 +1,17 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
-    email: EmailStr
+    email: str = Field(..., min_length=3, max_length=255)
     is_active: bool = True
 
 
 class UserUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
-    email: EmailStr | None = None
+    email: str | None = Field(default=None, min_length=3, max_length=255)
     is_active: bool | None = None
 
 
@@ -20,6 +20,6 @@ class UserRead(BaseModel):
 
     id: int
     name: str
-    email: EmailStr
+    email: str
     is_active: bool
     created_at: datetime
