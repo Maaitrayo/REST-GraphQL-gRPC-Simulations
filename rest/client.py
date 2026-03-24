@@ -1,3 +1,18 @@
+"""
+Example usage:
+
+python rest/client.py health
+python rest/client.py list-users
+python rest/client.py create-user --name Alice --email alice@example.com
+python rest/client.py get-user 1
+
+python rest/client.py update-user 1 --name "Alice Updated"
+python rest/client.py update-user 1 --email "alice.new@example.com"
+python rest/client.py update-user 1 --inactive
+python rest/client.py update-user 1 --name "Alice" --email "alice@example.com" --active
+
+"""
+
 import argparse
 import json
 from urllib import error, request
@@ -51,6 +66,13 @@ def build_parser() -> argparse.ArgumentParser:
     create_user.add_argument("--email", required=True)
     create_user.add_argument("--inactive", action="store_true")
 
+    update_user = subparsers.add_parser("update-user")
+    update_user.add_argument("user_id", type=int)
+    update_user.add_argument("--name")
+    update_user.add_argument("--email")
+    update_user.add_argument("--active", action="store_true")
+    update_user.add_argument("--inactive", action="store_true")
+
     delete_user = subparsers.add_parser("delete-user")
     delete_user.add_argument("user_id", type=int)
 
@@ -77,6 +99,23 @@ def main() -> None:
                 "email": args.email,
                 "is_active": not args.inactive,
             },
+        )
+    elif args.command == "update-user":
+        payload = {}
+        if args.name is not None:
+            payload["name"] = args.name
+        if args.email is not None:
+            payload["email"] = args.email
+        if args.active:
+            payload["is_active"] = True
+        if args.inactive:
+            payload["is_active"] = False
+
+        send_request(
+            "PATCH",
+            f"/users/{args.user_id}",
+            base_url=args.base_url,
+            payload=payload,
         )
     elif args.command == "delete-user":
         send_request("DELETE", f"/users/{args.user_id}", base_url=args.base_url)
