@@ -43,9 +43,16 @@ def get_order_service(
 def list_orders(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
+    user_id: int | None = Query(default=None, ge=1),
+    status: str | None = Query(default=None, min_length=1, max_length=50),
     service: OrderService = Depends(get_order_service),
 ) -> list[OrderRead]:
-    return service.list_orders(page=page, limit=limit)
+    return service.list_orders(
+        page=page,
+        limit=limit,
+        user_id=user_id,
+        status=status,
+    )
 
 
 @router.get("/{order_id}", response_model=OrderRead)

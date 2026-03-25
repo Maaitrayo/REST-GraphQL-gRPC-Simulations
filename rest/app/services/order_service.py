@@ -32,9 +32,21 @@ class OrderService:
         self.order_repository = order_repository
         self.user_repository = user_repository
 
-    def list_orders(self, *, page: int = 1, limit: int = 10) -> list[Order]:
+    def list_orders(
+        self,
+        *,
+        page: int = 1,
+        limit: int = 10,
+        user_id: int | None = None,
+        status: str | None = None,
+    ) -> list[Order]:
         offset = (page - 1) * limit
-        return self.order_repository.list_orders(offset=offset, limit=limit)
+        return self.order_repository.list_orders(
+            offset=offset,
+            limit=limit,
+            user_id=user_id,
+            status=status,
+        )
 
     def get_order(self, order_id: int) -> Order:
         order = self.order_repository.get_by_id(order_id)

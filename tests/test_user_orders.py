@@ -127,3 +127,116 @@ def test_list_orders_supports_pagination() -> None:
         assert len(orders) == 2
         assert orders[0]["product_name"] == "Product 3"
         assert orders[1]["product_name"] == "Product 4"
+
+
+def test_list_orders_supports_filter_by_user_id() -> None:
+    reset_databases()
+
+    with TestClient(app) as client:
+        first_user_response = client.post(
+            "/api/v1/users",
+            json={
+                "name": "First User",
+                "email": "first@example.com",
+                "is_active": True,
+            },
+        )
+        assert first_user_response.status_code == 201
+        first_user_id = first_user_response.json()["id"]
+
+        second_user_response = client.post(
+            "/api/v1/users",
+            json={
+                "name": "Second User",
+                "email": "second@example.com",
+                "is_active": True,
+            },
+        )
+        assert second_user_response.status_code == 201
+        second_user_id = second_user_response.json()["id"]
+
+        first_order_response = client.post(
+            "/api/v1/orders",
+            json={
+                "user_id": first_user_id,
+                "product_name": "Laptop",
+                "quantity": 1,
+            },
+        )
+        assert first_order_response.status_code == 201
+
+        second_order_response = client.post(
+            "/api/v1/orders",
+            json={
+                "user_id": second_user_id,
+                "product_name": "Keyboard",
+                "quantity": 2,
+            },
+        )
+        assert second_order_response.status_code == 201
+
+        filtered_response = client.get(f"/api/v1/orders?user_id={first_user_id}")
+
+        assert filtered_response.status_code == 200
+        orders = filtered_response.json()
+        assert len(orders) == 1
+        assert orders[0]["user_id"] == first_user_id
+        assert orders[0]["product_name"] == "Laptop"
+
+
+def test_list_orders_supports_filter_by_status() -> None:
+    reset_databases()
+
+    with TestClient(app) as client:
+        user_response = client.post(
+            "/api/v1/users",
+            json={
+                "name": "Status User",
+                "email": "status@example.com",
+                "is_active": True,
+            },
+        )
+        assert user_response.status_code == 201
+        user_id = user_response.json()["id"]
+
+        first_order_response = client.post(
+            "/api/v1/orders",
+            json={
+                "user_id": user_id,
+                "product_name": "Phone",
+                "quantity": 1,
+            },
+        )
+        assert first_order_response.status_code == 201
+        first_order_id = first_order_response.json()["id"]
+
+        second_order_response = client.post(
+            "/api/v1/orders",
+            json={
+                "user_id": user_id,
+                "product_name": "Tablet",
+                "quantity": 1,
+            },
+        )
+        assert second_order_response.status_code == 201
+        second_order_id = second_order_response.json()["id"]
+
+        update_first = client.patch(
+            f"/api/v1/orders/{first_order_id}",
+            json={"status": "shipped"},
+        )
+        assert update_first.status_code == 200
+
+        update_second = client.patch(
+            f"/api/v1/orders/{second_order_id}",
+            json={"status": "cancelled"},
+        )
+        assert update_second.status_code == 200
+
+        filtered_response = client.get("/api/v1/orders?status=shipped")
+
+        assert filtered_response.status_code == 200
+        orders = filtered_response.json()
+        assert len(orders) == 1
+        assert orders[0]["id"] == first_order_id
+        assert orders[0]["status"] == "shipped"
