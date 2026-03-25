@@ -46,6 +46,7 @@ def send_request(
         with request.urlopen(req) as response:
             body = response.read().decode("utf-8")
             print(f"Status: {response.status}")
+            print(f"Headers: {response.headers}")
             print(body if body else "<empty>")
     except error.HTTPError as exc:
         body = exc.read().decode("utf-8")
