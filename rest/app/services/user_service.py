@@ -1,3 +1,4 @@
+from rest.app.core.exceptions import AppError
 from rest.app.models.order import Order
 from rest.app.models.user import User
 from rest.app.repositories.order_repository import OrderRepository
@@ -5,16 +6,31 @@ from rest.app.repositories.user_repository import UserRepository
 from rest.app.schemas.user import UserCreate, UserUpdate
 
 
-class UserNotFoundError(Exception):
-    pass
+class UserNotFoundError(AppError):
+    def __init__(self, user_id: int) -> None:
+        super().__init__(
+            detail=f"User with id {user_id} was not found.",
+            error_code="user_not_found",
+            status_code=404,
+        )
 
 
-class UserEmailAlreadyExistsError(Exception):
-    pass
+class UserEmailAlreadyExistsError(AppError):
+    def __init__(self, email: str) -> None:
+        super().__init__(
+            detail=f"User with email {email} already exists.",
+            error_code="user_email_already_exists",
+            status_code=400,
+        )
 
 
-class UserHasOrdersError(Exception):
-    pass
+class UserHasOrdersError(AppError):
+    def __init__(self, user_id: int) -> None:
+        super().__init__(
+            detail=f"User with id {user_id} cannot be deleted because orders exist.",
+            error_code="user_has_orders",
+            status_code=400,
+        )
 
 
 class UserService:
@@ -32,15 +48,13 @@ class UserService:
     def get_user(self, user_id: int) -> User:
         user = self.repository.get_by_id(user_id)
         if user is None:
-            raise UserNotFoundError(f"User with id {user_id} was not found.")
+            raise UserNotFoundError(user_id)
         return user
 
     def create_user(self, payload: UserCreate) -> User:
         existing_user = self.repository.get_by_email(str(payload.email))
         if existing_user is not None:
-            raise UserEmailAlreadyExistsError(
-                f"User with email {payload.email} already exists."
-            )
+            raise UserEmailAlreadyExistsError(str(payload.email))
 
         return self.repository.create(
             name=payload.name,
@@ -56,9 +70,7 @@ class UserService:
         if new_email is not None:
             existing_user = self.repository.get_by_email(str(new_email))
             if existing_user is not None and existing_user.id != user.id:
-                raise UserEmailAlreadyExistsError(
-                    f"User with email {new_email} already exists."
-                )
+                raise UserEmailAlreadyExistsError(str(new_email))
             changes["email"] = str(new_email)
 
         return self.repository.update(user, **changes)
@@ -76,8 +88,6 @@ class UserService:
         if self.order_repository is not None:
             user_orders = self.order_repository.list_by_user_id(user.id)
             if user_orders:
-                raise UserHasOrdersError(
-                    f"User with id {user_id} cannot be deleted because orders exist."
-                )
+                raise UserHasOrdersError(user_id)
 
         self.repository.delete(user)

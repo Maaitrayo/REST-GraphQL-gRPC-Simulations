@@ -79,9 +79,10 @@ def test_create_user_with_duplicate_email_returns_400() -> None:
         )
 
         assert duplicate_response.status_code == 400
-        assert duplicate_response.json()["detail"] == (
-            "User with email alice@example.com already exists."
-        )
+        assert duplicate_response.json() == {
+            "detail": "User with email alice@example.com already exists.",
+            "error_code": "user_email_already_exists",
+        }
 
 
 def test_get_missing_user_returns_404() -> None:
@@ -91,4 +92,7 @@ def test_get_missing_user_returns_404() -> None:
         response = client.get("/api/v1/users/999")
 
         assert response.status_code == 404
-        assert response.json()["detail"] == "User with id 999 was not found."
+        assert response.json() == {
+            "detail": "User with id 999 was not found.",
+            "error_code": "user_not_found",
+        }

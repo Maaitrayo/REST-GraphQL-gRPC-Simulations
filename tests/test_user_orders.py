@@ -88,6 +88,7 @@ def test_delete_user_with_orders_returns_400() -> None:
         delete_response = client.delete(f"/api/v1/users/{user_id}")
 
         assert delete_response.status_code == 400
-        assert delete_response.json()["detail"] == (
-            f"User with id {user_id} cannot be deleted because orders exist."
-        )
+        assert delete_response.json() == {
+            "detail": f"User with id {user_id} cannot be deleted because orders exist.",
+            "error_code": "user_has_orders",
+        }
