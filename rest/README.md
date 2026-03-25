@@ -24,6 +24,15 @@ The main REST docs are in [`rest/docs/`](rest\docs):
 - [`implementation.md`](docs\implementation.md): implementation order and execution flow
 - [`objective.md`](docs\objective.md): project direction and design notes
 - [`db-users-check.md`](docs\db-users-check.md): SQL commands for inspecting users and orders
+- [`rest-pain-points.md`](docs\rest-pain-points.md): REST-specific pain points seen in this project
+
+### Phase Plans
+
+- [`phase-1-plan.md`](docs\phase\phase-1-plan.md): foundation and application bootstrap
+- [`phase-2-plan.md`](docs\phase\phase-2-plan.md): user resource implementation
+- [`phase-3-plan.md`](docs\phase\phase-3-plan.md): order resource implementation
+- [`phase-4-plan.md`](docs\phase\phase-4-plan.md): cross-resource workflows
+- [`phase-5-plan.md`](docs\phase\phase-5-plan.md): API quality improvements
 
 ## Sample Client Commands
 
@@ -73,6 +82,8 @@ Completed so far:
 
 - Phase 1 foundation
 - Phase 2 user resource
-- Phase 3 order resource structure
+- Phase 3 order resource
+- Phase 4 cross-resource workflows
+- Phase 5 API quality improvements in progress
 
-Next work should continue incrementally with tests and cross-resource workflows.
+Next work should continue incrementally with remaining Phase 5 refinement and documentation updates.

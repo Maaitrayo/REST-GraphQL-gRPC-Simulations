@@ -110,13 +110,13 @@ uv run uvicorn rest.app.main:app --reload
 Create a user with the client:
 
 ```powershell
-python rest/client.py create-user --name Alice --email alice@example.com
+uv run rest/user_client.py create-user --name Alice --email alice@example.com
 ```
 
 Create an order:
 
 ```powershell
-python rest/order_client.py create-order --user-id 1 --product-name Laptop --quantity 1
+uv run rest/order_client.py create-order --user-id 1 --product-name Laptop --quantity 1
 ```
 
 Then inspect the databases:

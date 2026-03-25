@@ -79,9 +79,10 @@ def test_create_user_with_duplicate_email_returns_400() -> None:
         )
 
         assert duplicate_response.status_code == 400
-        assert duplicate_response.json()["detail"] == (
-            "User with email alice@example.com already exists."
-        )
+        assert duplicate_response.json() == {
+            "detail": "User with email alice@example.com already exists.",
+            "error_code": "user_email_already_exists",
+        }
 
 
 def test_get_missing_user_returns_404() -> None:
@@ -91,4 +92,31 @@ def test_get_missing_user_returns_404() -> None:
         response = client.get("/api/v1/users/999")
 
         assert response.status_code == 404
-        assert response.json()["detail"] == "User with id 999 was not found."
+        assert response.json() == {
+            "detail": "User with id 999 was not found.",
+            "error_code": "user_not_found",
+        }
+
+
+def test_list_users_supports_pagination() -> None:
+    reset_databases()
+
+    with TestClient(app) as client:
+        for index in range(1, 6):
+            response = client.post(
+                "/api/v1/users",
+                json={
+                    "name": f"User {index}",
+                    "email": f"user{index}@example.com",
+                    "is_active": True,
+                },
+            )
+            assert response.status_code == 201
+
+        paginated_response = client.get("/api/v1/users?page=2&limit=2")
+
+        assert paginated_response.status_code == 200
+        users = paginated_response.json()
+        assert len(users) == 2
+        assert users[0]["name"] == "User 3"
+        assert users[1]["name"] == "User 4"
