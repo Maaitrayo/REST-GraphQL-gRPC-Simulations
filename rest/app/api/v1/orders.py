@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from rest.app.db.order_database import get_order_session
@@ -40,8 +40,12 @@ def get_order_service(
 
 
 @router.get("", response_model=list[OrderRead])
-def list_orders(service: OrderService = Depends(get_order_service)) -> list[OrderRead]:
-    return service.list_orders()
+def list_orders(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
+    service: OrderService = Depends(get_order_service),
+) -> list[OrderRead]:
+    return service.list_orders(page=page, limit=limit)
 
 
 @router.get("/{order_id}", response_model=OrderRead)

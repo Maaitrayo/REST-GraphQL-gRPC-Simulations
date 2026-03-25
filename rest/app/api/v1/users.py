@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from rest.app.db.order_database import get_order_session
@@ -41,8 +41,12 @@ def get_user_service(
 
 
 @router.get("", response_model=list[UserRead])
-def list_users(service: UserService = Depends(get_user_service)) -> list[UserRead]:
-    return service.list_users()
+def list_users(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
+    service: UserService = Depends(get_user_service),
+) -> list[UserRead]:
+    return service.list_users(page=page, limit=limit)
 
 
 @router.get("/{user_id}", response_model=UserRead)

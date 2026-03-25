@@ -8,8 +8,10 @@ class UserRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def list_users(self) -> list[User]:
-        statement = select(User).order_by(User.id)
+    def list_users(self, *, offset: int = 0, limit: int | None = None) -> list[User]:
+        statement = select(User).order_by(User.id).offset(offset)
+        if limit is not None:
+            statement = statement.limit(limit)
         return list(self.session.scalars(statement).all())
 
     def get_by_id(self, user_id: int) -> User | None:

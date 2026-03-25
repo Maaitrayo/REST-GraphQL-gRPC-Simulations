@@ -8,8 +8,10 @@ class OrderRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def list_orders(self) -> list[Order]:
-        statement = select(Order).order_by(Order.id)
+    def list_orders(self, *, offset: int = 0, limit: int | None = None) -> list[Order]:
+        statement = select(Order).order_by(Order.id).offset(offset)
+        if limit is not None:
+            statement = statement.limit(limit)
         return list(self.session.scalars(statement).all())
 
     def get_by_id(self, order_id: int) -> Order | None:

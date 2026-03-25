@@ -92,3 +92,38 @@ def test_delete_user_with_orders_returns_400() -> None:
             "detail": f"User with id {user_id} cannot be deleted because orders exist.",
             "error_code": "user_has_orders",
         }
+
+
+def test_list_orders_supports_pagination() -> None:
+    reset_databases()
+
+    with TestClient(app) as client:
+        user_response = client.post(
+            "/api/v1/users",
+            json={
+                "name": "Order Owner",
+                "email": "owner@example.com",
+                "is_active": True,
+            },
+        )
+        assert user_response.status_code == 201
+        user_id = user_response.json()["id"]
+
+        for index in range(1, 6):
+            order_response = client.post(
+                "/api/v1/orders",
+                json={
+                    "user_id": user_id,
+                    "product_name": f"Product {index}",
+                    "quantity": index,
+                },
+            )
+            assert order_response.status_code == 201
+
+        paginated_response = client.get("/api/v1/orders?page=2&limit=2")
+
+        assert paginated_response.status_code == 200
+        orders = paginated_response.json()
+        assert len(orders) == 2
+        assert orders[0]["product_name"] == "Product 3"
+        assert orders[1]["product_name"] == "Product 4"

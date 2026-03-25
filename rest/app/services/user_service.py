@@ -42,8 +42,9 @@ class UserService:
         self.repository = repository
         self.order_repository = order_repository
 
-    def list_users(self) -> list[User]:
-        return self.repository.list_users()
+    def list_users(self, *, page: int = 1, limit: int = 10) -> list[User]:
+        offset = (page - 1) * limit
+        return self.repository.list_users(offset=offset, limit=limit)
 
     def get_user(self, user_id: int) -> User:
         user = self.repository.get_by_id(user_id)
